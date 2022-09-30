@@ -22,7 +22,7 @@ const PACKAGE_JSON_BASE = {
   license: 'MIT',
   repository: {
     type: 'git',
-    url: 'https://github.com/danielsogl/awesome-cordova-plugins.git',
+    url: 'https://github.com/MaximBelov/awesome-cordova-plugins.git',
   },
 };
 
@@ -31,7 +31,7 @@ const DIST = resolve(ROOT, 'dist/@awesome-cordova-plugins');
 const PACKAGES = [];
 
 const MIN_CORE_VERSION = '^5.1.0';
-const RXJS_VERSION = '^5.5.0 || ^6.5.0 || ^7.3.0';
+const RXJS_VERSION = '^5.5.0 || ^6.5.0 || ^7.4.0';
 
 const PLUGIN_PEER_DEPENDENCIES = {
   '@awesome-cordova-plugins/core': MIN_CORE_VERSION,
@@ -40,7 +40,7 @@ const PLUGIN_PEER_DEPENDENCIES = {
 
 function getPackageJsonContent(name: string, peerDependencies = {}, dependencies = {}) {
   return merge(PACKAGE_JSON_BASE, {
-    name: '@awesome-cordova-plugins/' + name,
+    name: 'awesome-cordova-plugins-' + name,
     dependencies,
     peerDependencies,
     version: VERSION,
@@ -58,10 +58,10 @@ function writeNGXPackageJson(data: any, dir: string) {
 }
 function prepare() {
   // write @awesome-cordova-plugins/core package.json
-  writePackageJson(
-    getPackageJsonContent('core', { rxjs: RXJS_VERSION }, { '@types/cordova': 'latest' }),
-    resolve(DIST, 'core')
-  );
+  // writePackageJson(
+  //   getPackageJsonContent('core', { rxjs: RXJS_VERSION }, { '@types/cordova': 'latest' }),
+  //   resolve(DIST, 'core')
+  // );
 
   // write plugin package.json files
   PLUGIN_PATHS.forEach((pluginPath: string) => {
