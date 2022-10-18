@@ -1,7 +1,5 @@
-# Metrix
-
-```
-$ ionic cordova plugin add ir.metrix.sdk
+# MetrixConfig
+ ionic cordova plugin add ir.metrix.sdk
 $ npm install @awesome-cordova-plugins/metrix
 ```
 
