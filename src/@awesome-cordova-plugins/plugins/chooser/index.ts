@@ -8,7 +8,14 @@ export interface ChooserOptions {
 
 export interface ChooserResult {
   path: string;
+  /**
+   * with extension
+   */
   name: string;
+  /**
+   * without extension
+   */
+  displayName: string;
   mimeType: string;
   extension: string;
   size: number;
@@ -52,7 +59,7 @@ export interface ChooserResult {
   pluginName: 'Chooser',
   plugin: 'cordova-plugin-chooser',
   pluginRef: 'chooser',
-  repo: 'https://github.com/cyph/cordova-plugin-chooser',
+  repo: 'https://github.com/MaximBelov/cordova-plugin-chooser',
   platforms: ['Android', 'iOS'],
 })
 @Injectable()

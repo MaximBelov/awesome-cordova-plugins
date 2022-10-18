@@ -55,17 +55,17 @@ export class FFMpeg extends AwesomeCordovaNativePlugin {
   /**
    * Execute ffmpeg command
    * @param cmd {string} command
-   * @return {Promise<any>} Returns a promise that resolves when something happens
+   * @return {Promise<any>} Returns a promise that resolves when execute finished
    */
   @Cordova()
   exec(cmd: string): Promise<any> {
-    return; // We add return; here to avoid any IDE / Compiler errors
+    return;
   }
 
   /**
-   * Get video information
+   * Extracts media information for the file specified with path
    * @param filePath {string} file path
-   * @return {Promise<any>} Returns a promise that resolves when something happens
+   * @return {Promise<VideoInformation>} Returns a promise that resolves when media information received
    */
   @Cordova()
   probe(filePath: string): Promise<VideoInformation> {
