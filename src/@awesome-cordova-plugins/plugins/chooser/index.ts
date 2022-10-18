@@ -9,11 +9,11 @@ export interface ChooserOptions {
 export interface ChooserResult {
   path: string;
   /**
-   * with extension
+   * without extension
    */
   name: string;
   /**
-   * without extension
+   * with extension
    */
   displayName: string;
   mimeType: string;
