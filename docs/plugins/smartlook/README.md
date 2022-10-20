@@ -1,5 +1,5 @@
-# SmartlookRenderingMode
-pertyKey
+# SmartlookGlobalEventProperty
+ey
 lugin add https://github.com/smartlook/cordova-smartlook.git
 $ npm install @awesome-cordova-plugins/smartlook
 ```

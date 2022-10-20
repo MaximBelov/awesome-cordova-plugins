@@ -1,8 +1,6 @@
-# SettingsResult
- SDK
-
-```
-$ ionic cordova plugin add @awesome-cordova-plugins/unvired-cordova-sdk
+# AuthenticateLocalResult
+lt
+ionic cordova plugin add @awesome-cordova-plugins/unvired-cordova-sdk
 $ npm install @awesome-cordova-plugins/unvired-cordova-sdk
 ```
 

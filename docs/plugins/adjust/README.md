@@ -1,7 +1,6 @@
-# Adjust
-
-```
-$ ionic cordova plugin add com.adjust.sdk
+# AdjustConfig
+reSubscription
+plugin add com.adjust.sdk
 $ npm install @awesome-cordova-plugins/adjust
 ```
 
