@@ -23,8 +23,9 @@ export const PLUGIN_PATHS = readdirSync(PLUGINS_ROOT)
   .map((d) => {
     if (
       // d.includes('ffmpeg') ||
-      d.includes('chooser')
-      // || d.includes('intercom')
+      d.includes('advanced-image-picker')
+      // d.includes('chooser')
+      // || d.includes('intercpom')
       // || d.includes('contacts')
       // || d.includes('mobile-accessibility')
       // || d.includes('screenshot')
