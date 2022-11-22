@@ -24,7 +24,7 @@ export interface IncomingSMS {
  * this.smsRetrieverAz.getHashString()
  *   .then((res: any) => console.log(res))
  *   .catch((error: any) => console.error(error));
- * this.smsRetrieverAz.startWatching()
+ * this.smsRetrieverAz.startWatch()
  *   .then((res: any) => console.log(res))
  *   .catch((error: any) => console.error(error));
  * this.onSMSArrive.onSMSArrive()
