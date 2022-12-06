@@ -50,7 +50,9 @@ export class SmsRetrieverAz extends AwesomeCordovaNativePlugin {
    *
    * @returns {Observable<string>} Returns an observable that resolves when retries SMS text or TIMEOUT after 5 min.
    */
-  @Cordova()
+  @Cordova({
+    observable: true,
+  })
   startWatch(): Observable<string> {
     return;
   }
