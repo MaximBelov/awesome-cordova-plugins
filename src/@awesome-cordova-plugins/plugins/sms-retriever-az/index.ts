@@ -25,7 +25,10 @@ export interface IncomingSMS {
  *   .then((res: any) => console.log(res))
  *   .catch((error: any) => console.error(error));
  * this.smsRetrieverAz.startWatch()
- *   .then((res: any) => console.log(res))
+ *   .subscribe(
+ *    (res: any) => console.log(res),
+ *    (error: any) => console.error(error),
+ *   )
  *   .catch((error: any) => console.error(error));
  * this.onSMSArrive.onSMSArrive()
  *   .subscribe(() => { console.log(); });
@@ -45,10 +48,10 @@ export class SmsRetrieverAz extends AwesomeCordovaNativePlugin {
   /**
    * This function start watching message arrive event and retrieve message text.
    *
-   * @returns {Promise<string>} Returns a promise that resolves when retries SMS text or TIMEOUT after 5 min.
+   * @returns {Observable<string>} Returns an observable that resolves when retries SMS text or TIMEOUT after 5 min.
    */
   @Cordova()
-  startWatch(): Promise<string> {
+  startWatch(): Observable<string> {
     return;
   }
 
