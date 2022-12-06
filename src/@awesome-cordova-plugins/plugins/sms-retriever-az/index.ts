@@ -7,6 +7,13 @@ export interface IncomingSMS {
   [key: string]: any;
 }
 
+export enum SmsRetrieverStatus {
+  AlreadyStarted = 'SMS_RETRIEVER_ALREADY_STARTED',
+  Started = 'SMS_RETRIEVER_STARTED',
+  Done = 'SMS_RETRIEVER_DONE',
+  Timeout = 'TIMEOUT',
+}
+
 /**
  * @name SmsRetrieverAz
  * @description
