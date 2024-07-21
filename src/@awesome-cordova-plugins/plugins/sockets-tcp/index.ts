@@ -1,16 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-  Plugin,
-  Cordova,
-  AwesomeCordovaNativePlugin,
-  CordovaInstance,
-  CordovaProperty,
-  InstanceProperty,
-} from '@awesome-cordova-plugins/core';
-import { Observable, Observer, fromEventPattern } from 'rxjs';
-import { filter } from 'rxjs/operators';
-
-declare const window: Window & { chrome: any };
+import { Plugin, Cordova, AwesomeCordovaNativePlugin, CordovaProperty } from '@awesome-cordova-plugins/core';
+import { Observable, fromEventPattern } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 /**
  * @name SocketsTcp
@@ -43,16 +34,16 @@ declare const window: Window & { chrome: any };
 @Injectable()
 export class SocketsTcp extends AwesomeCordovaNativePlugin {
   @CordovaProperty()
-  onReceive: SocketCommonEvent;
+  onReceive: SocketTcpEvent;
 
   @CordovaProperty()
-  onReceiveError: SocketCommonEvent;
+  onReceiveError: SocketTcpEvent;
 
   /**
    * @param properties
    */
   @Cordova()
-  create(properties: any): Promise<SocketInfo> {
+  create(properties: any): Promise<SocketTcpInfo> {
     return;
   }
 
@@ -72,7 +63,7 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
    * @param paused
    */
   @Cordova()
-  setPaused(socketId: number, paused: any): Promise<any> {
+  setPaused(socketId: number, paused: boolean): Promise<any> {
     return;
   }
 
@@ -83,7 +74,7 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
    * @param delay
    */
   @Cordova()
-  setKeepAlive(socketId: number, enabled: any, delay: any): Promise<any> {
+  setKeepAlive(socketId: number, enabled: boolean, delay: any): Promise<any> {
     return;
   }
 
@@ -106,7 +97,7 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
    * @param peerPort
    */
   @Cordova()
-  connect(socketId: number, peerAddress: any, peerPort: number): Promise<any> {
+  connect(socketId: number, peerAddress: string, peerPort: number): Promise<any> {
     return;
   }
 
@@ -135,7 +126,7 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
    * @param data
    */
   @Cordova()
-  send(socketId: number, data: any): Promise<any> {
+  send(socketId: number, data: ArrayBuffer): Promise<any> {
     return;
   }
 
@@ -161,7 +152,7 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
    *
    */
   @Cordova()
-  getSockets(): Promise<SocketInfo[]> {
+  getSockets(): Promise<SocketTcpInfo[]> {
     return;
   }
 
@@ -178,10 +169,17 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
   /**
    * Watch all incoming data event
    */
-  public onReceiveData(): Observable<SocketDataInfo> {
+  public onReceiveData(): Observable<SocketTcpDataInfo> {
     return fromEventPattern(
       (eventHandler) => this.onReceive.addListener(eventHandler),
       (errorEventHandler) => this.onReceive.removeListener(errorEventHandler)
+    ).pipe(
+      map((socketUdpDataInfo: SocketTcpDataInfo) => {
+        socketUdpDataInfo.dataAsSting = socketUdpDataInfo.data
+          ? new TextDecoder().decode(socketUdpDataInfo.data).trim()
+          : null;
+        return socketUdpDataInfo;
+      })
     );
   }
 
@@ -189,14 +187,14 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
    * Watch socket incoming data
    * @param socketId
    */
-  public onReceiveDataBySocketId(socketId: number): Observable<SocketDataInfo> {
+  public onReceiveDataBySocketId(socketId: number) {
     return this.onReceiveData().pipe(filter((socketDataInfo) => socketDataInfo.socketId === socketId));
   }
 
   /**
    * Watch all sockets incoming error event listener
    */
-  public onReceiveDataError(): Observable<SocketErrorInfo> {
+  public onReceiveDataError(): Observable<SocketTcpErrorInfo> {
     return fromEventPattern(
       (eventHandler) => this.onReceiveError.addListener(eventHandler),
       (errorEventHandler) => this.onReceiveError.removeListener(errorEventHandler)
@@ -207,12 +205,12 @@ export class SocketsTcp extends AwesomeCordovaNativePlugin {
    * Watch socket incoming error event listener
    * @param socketId
    */
-  public onReceiveDataErrorBySocketId(socketId: number): Observable<SocketErrorInfo> {
+  public onReceiveDataErrorBySocketId(socketId: number) {
     return this.onReceiveDataError().pipe(filter((socketDataInfo) => socketDataInfo.socketId === socketId));
   }
 }
 
-export interface SocketInfo {
+export interface SocketTcpInfo {
   socketId: number;
   persistent?: boolean;
   bufferSize?: number;
@@ -225,27 +223,33 @@ export interface SocketInfo {
   peerPort?: number;
 }
 
-export interface SocketDataInfo {
+export interface SocketTcpDataInfo {
   socketId: number;
   uri: string;
   bytesRead: number;
-  /**
-   * Android only
-   */
-  data?: ArrayBuffer;
+  data: ArrayBuffer;
+  dataAsSting: string;
 }
 
-export interface SocketErrorInfo {
+export interface SocketTcpErrorInfo {
   message: string;
-  resultCode: number;
+  resultCode: SocketTcpErrorResultCode;
   socketId: number;
   e?: boolean;
 }
 
-export interface SocketCommonEvent {
-  addListener(cb: any): void;
+export enum SocketTcpErrorResultCode {
+  SocketClosedByServer = 1,
+  ConnectionTimedOut = 2,
+  GenericSocketError = 3,
+  SocketNotConnected = 4,
+  ConnectionRefused = 5,
+}
 
-  removeListener(cb: any): void;
+interface SocketTcpEvent {
+  addListener(cb: (...args: any[]) => void): void;
+
+  removeListener(cb: (...args: any[]) => void): void;
 
   fire(): void;
 

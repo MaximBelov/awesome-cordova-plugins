@@ -1,16 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-  Plugin,
-  Cordova,
-  AwesomeCordovaNativePlugin,
-  CordovaInstance,
-  CordovaProperty,
-  InstanceProperty,
-} from '@awesome-cordova-plugins/core';
-import { Observable, Observer, fromEventPattern } from 'rxjs';
-import { filter } from 'rxjs/operators';
-
-declare const window: Window & { chrome: any };
+import { Plugin, Cordova, AwesomeCordovaNativePlugin, CordovaProperty } from '@awesome-cordova-plugins/core';
+import { Observable, fromEventPattern } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 /**
  * @name SocketsUdp
@@ -43,10 +34,10 @@ declare const window: Window & { chrome: any };
 @Injectable()
 export class SocketsUdp extends AwesomeCordovaNativePlugin {
   @CordovaProperty()
-  onReceive: SocketCommonEvent;
+  onReceive: SocketUdpEvent;
 
   @CordovaProperty()
-  onReceiveError: SocketCommonEvent;
+  onReceiveError: SocketUdpEvent;
 
   /**
    *
@@ -73,7 +64,7 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * @param paused
    */
   @Cordova()
-  setPaused(socketId: number, paused: any): Promise<any> {
+  setPaused(socketId: number, paused: boolean): Promise<any> {
     return;
   }
 
@@ -96,7 +87,7 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * @param port
    */
   @Cordova()
-  send(socketId: number, data: any, address: string, port: number): Promise<any> {
+  send(socketId: number, data: ArrayBuffer, address: string, port: number): Promise<any> {
     return;
   }
 
@@ -172,7 +163,7 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * @param enabled
    */
   @Cordova()
-  setMulticastLoopbackMode(socketId: number, enabled: any): Promise<any> {
+  setMulticastLoopbackMode(socketId: number, enabled: boolean): Promise<any> {
     return;
   }
 
@@ -188,10 +179,17 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
   /**
    * Watch all incoming data event
    */
-  public onReceiveData(): Observable<SocketDataInfo> {
+  public onReceiveData(): Observable<SocketUdpDataInfo> {
     return fromEventPattern(
       (eventHandler) => this.onReceive.addListener(eventHandler),
       (errorEventHandler) => this.onReceive.removeListener(errorEventHandler)
+    ).pipe(
+      map((socketUdpDataInfo: SocketUdpDataInfo) => {
+        socketUdpDataInfo.dataAsString = socketUdpDataInfo.data
+          ? new TextDecoder().decode(socketUdpDataInfo.data).trim()
+          : null;
+        return socketUdpDataInfo;
+      })
     );
   }
 
@@ -199,14 +197,14 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * Watch socket incoming data
    * @param socketId
    */
-  public onReceiveDataBySocketId(socketId: number): Observable<SocketDataInfo> {
+  public onReceiveDataBySocketId(socketId: number): Observable<SocketUdpDataInfo> {
     return this.onReceiveData().pipe(filter((socketDataInfo) => socketDataInfo.socketId === socketId));
   }
 
   /**
    * Watch all sockets incoming error event listener
    */
-  public onReceiveDataError(): Observable<SocketErrorInfo> {
+  public onReceiveDataError(): Observable<SocketUdpErrorInfo> {
     return fromEventPattern(
       (eventHandler) => this.onReceiveError.addListener(eventHandler),
       (errorEventHandler) => this.onReceiveError.removeListener(errorEventHandler)
@@ -217,15 +215,29 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * Watch socket incoming error event listener
    * @param socketId
    */
-  public onReceiveDataErrorBySocketId(socketId: number): Observable<SocketErrorInfo> {
+  public onReceiveDataErrorBySocketId(socketId: number): Observable<SocketUdpErrorInfo> {
     return this.onReceiveDataError().pipe(filter((socketDataInfo) => socketDataInfo.socketId === socketId));
   }
 }
 
-export interface SocketCommonEvent {
-  addListener(cb: any): void;
+export interface SocketUdpDataInfo {
+  socketId: number;
+  data: ArrayBuffer;
+  dataAsString: string;
+  remoteAddress: string;
+  remotePort: number;
+}
 
-  removeListener(cb: any): void;
+export interface SocketUdpErrorInfo {
+  message: string;
+  resultCode: number;
+  socketId: number;
+}
+
+interface SocketUdpEvent {
+  addListener(cb: (...args: any[]) => void): void;
+
+  removeListener(cb: (...args: any[]) => void): void;
 
   fire(): void;
 
@@ -241,21 +253,4 @@ export interface SocketCommonEvent {
 
   // Stub
   removeRules(): void;
-}
-
-export interface SocketDataInfo {
-  socketId: number;
-  uri: string;
-  bytesRead: number;
-  /**
-   * Android only
-   */
-  data?: ArrayBuffer;
-}
-
-export interface SocketErrorInfo {
-  message: string;
-  resultCode: number;
-  socketId: number;
-  e?: boolean;
 }
