@@ -221,6 +221,7 @@ export interface SocketTcpInfo {
   localPort?: number;
   peerAddress?: string;
   peerPort?: number;
+  [key: string]: any;
 }
 
 export interface SocketTcpDataInfo {

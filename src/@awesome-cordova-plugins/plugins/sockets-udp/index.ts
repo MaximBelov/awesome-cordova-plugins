@@ -44,7 +44,7 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * @param properties
    */
   @Cordova()
-  create(properties: any): Promise<any> {
+  create(properties: { persistent?: number; name?: string; bufferSize?: number }): Promise<SocketUdpInfo> {
     return;
   }
 
@@ -96,7 +96,7 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * @param socketId
    */
   @Cordova()
-  close(socketId: number) {
+  close(socketId: number): Promise<void> {
     return;
   }
 
@@ -105,7 +105,7 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * @param socketId
    */
   @Cordova()
-  getInfo(socketId: number): Promise<any> {
+  getInfo(socketId: number): Promise<SocketUdpInfo> {
     return;
   }
 
@@ -113,7 +113,7 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    *
    */
   @Cordova()
-  getSockets(): Promise<any> {
+  getSockets(): Promise<SocketUdpInfo[]> {
     return;
   }
 
@@ -216,8 +216,19 @@ export class SocketsUdp extends AwesomeCordovaNativePlugin {
    * @param socketId
    */
   public onReceiveDataErrorBySocketId(socketId: number): Observable<SocketUdpErrorInfo> {
-    return this.onReceiveDataError().pipe(filter((socketDataInfo) => socketDataInfo.socketId === socketId));
+    return this.onReceiveDataError().pipe(filter((socketUdpErrorInfo) => socketUdpErrorInfo.socketId === socketId));
   }
+}
+
+export interface SocketUdpInfo {
+  socketId: number;
+  persistent?: boolean;
+  bufferSize?: number;
+  name?: string;
+  paused?: boolean;
+  localAddress?: string;
+  localPort?: number;
+  [key: string]: any;
 }
 
 export interface SocketUdpDataInfo {
