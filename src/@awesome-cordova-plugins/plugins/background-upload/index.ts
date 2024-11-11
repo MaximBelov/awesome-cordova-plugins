@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Plugin, CordovaInstance, AwesomeCordovaNativePlugin } from '@awesome-cordova-plugins/core';
+import { Observable } from 'rxjs';
 
 declare const window: any;
 
@@ -57,13 +58,37 @@ export class FileTransferManager {
     return;
   }
 
+  @CordovaInstance({
+    observable: true,
+    methodName: 'startUpload',
+  })
+  startUploadObservable(payload: FTMPayloadOptions): void {
+    return;
+  }
+
   @CordovaInstance()
   removeUpload(id: any): Promise<any> {
     return;
   }
 
+  @CordovaInstance({
+    observable: true,
+    methodName: 'removeUpload',
+  })
+  removeUploadObservable(id: any): Observable<any> {
+    return;
+  }
+
   @CordovaInstance()
   acknowledgeEvent(id: string): Promise<any> {
+    return;
+  }
+
+  @CordovaInstance({
+    observable: true,
+    methodName: 'acknowledgeEvent',
+  })
+  acknowledgeEventObservable(id: string): Observable<any> {
     return;
   }
 
