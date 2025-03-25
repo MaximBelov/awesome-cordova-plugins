@@ -19,7 +19,13 @@ export const ROOT = resolve(__dirname, '../../');
 export const TS_CONFIG = clone(require(resolve(ROOT, 'tsconfig.json')));
 export const COMPILER_OPTIONS = TS_CONFIG.compilerOptions;
 export const PLUGINS_ROOT = join(ROOT, 'src/@awesome-cordova-plugins/plugins/');
-export const PLUGIN_PATHS = readdirSync(PLUGINS_ROOT).map((d) => join(PLUGINS_ROOT, d, 'index.ts'));
+export const PLUGIN_PATHS = readdirSync(PLUGINS_ROOT)
+  .map((d) => {
+    if (d.includes('intercom')) {
+      return join(PLUGINS_ROOT, d, 'index.ts');
+    }
+  })
+  .filter((d) => d);
 
 export function getDecorator(node: Node, index = 0): Decorator {
   if (node.decorators && node.decorators[index]) {

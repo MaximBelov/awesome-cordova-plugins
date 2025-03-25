@@ -20,7 +20,7 @@
     "readmes": "gulp readmes",
     "docs-json": "ts-node -P scripts/tsconfig.json scripts/docs-json",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "shipit": "npm run build && npm run readmes && npm run npmpub",
+    "shipit": "npm run build && npm run npmpub",
     "prettier": "prettier --write --ignore-unknown \"**/*\""
   },
   "dependencies": {
