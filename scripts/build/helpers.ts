@@ -21,7 +21,7 @@ export const COMPILER_OPTIONS = TS_CONFIG.compilerOptions;
 export const PLUGINS_ROOT = join(ROOT, 'src/@awesome-cordova-plugins/plugins/');
 export const PLUGIN_PATHS = readdirSync(PLUGINS_ROOT)
   .map((d) => {
-    if (d.includes('intercom')) {
+    if (d.includes('screenshot')) {
       return join(PLUGINS_ROOT, d, 'index.ts');
     }
   })
