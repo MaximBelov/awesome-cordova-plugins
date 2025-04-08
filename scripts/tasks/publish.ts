@@ -40,7 +40,7 @@ const PLUGIN_PEER_DEPENDENCIES = {
 
 function getPackageJsonContent(name: string, peerDependencies = {}, dependencies = {}) {
   return merge(PACKAGE_JSON_BASE, {
-    name: 'awesome-cordova-plugins-' + name,
+    name: '@awesome-cordova-plugins-hotfix/' + name,
     dependencies,
     peerDependencies,
     version: VERSION,
