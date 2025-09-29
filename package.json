@@ -16,7 +16,7 @@
     "build": "npm run build:core && npm run build:esm && npm run build:ngx && npm run build:es5",
     "prebuild": "rimraf -rf dist",
     "npmpub": "ts-node -P scripts/tsconfig.json scripts/tasks/publish",
-    "shipit": "npm run npmpub",
+    "shipit": "npm run build && npm run npmpub",
     "lint": "eslint src/**/*.ts",
     "readmes": "gulp readmes",
     "docs-json": "ts-node -P scripts/tsconfig.json scripts/docs-json",
