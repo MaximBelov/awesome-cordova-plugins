@@ -19,7 +19,24 @@ export const ROOT = resolve(__dirname, '../../');
 export const TS_CONFIG = JSON.parse(readFileSync(resolve(ROOT, 'tsconfig.json'), 'utf-8'));
 export const COMPILER_OPTIONS = TS_CONFIG.compilerOptions;
 export const PLUGINS_ROOT = join(ROOT, 'src/@awesome-cordova-plugins/plugins/');
-export const PLUGIN_PATHS = readdirSync(PLUGINS_ROOT).map((d: string) => join(PLUGINS_ROOT, d, 'index.ts'));
+const HOTFIX_PLUGINS = [
+  'firebasex-core',
+  'firebasex-analytics',
+  'firebasex-messaging',
+  'firebasex-crashlytics',
+  'firebasex-auth',
+  'firebasex-config',
+  'firebasex-firestore',
+  'firebasex-functions',
+  'firebasex-performance',
+];
+export const PLUGIN_PATHS = readdirSync(PLUGINS_ROOT)
+  .map((d: string) => {
+    if (HOTFIX_PLUGINS.includes(d)) {
+      return join(PLUGINS_ROOT, d, 'index.ts');
+    }
+  })
+  .filter((d) => d);
 
 export function getDecorator(node: Node, index = 0): Decorator | undefined {
   const decorators = canHaveDecorators(node) ? tsGetDecorators(node) : undefined;

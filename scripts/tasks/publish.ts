@@ -28,7 +28,12 @@ interface PackageJson {
 
 const MAIN_PACKAGE_JSON = JSON.parse(readFileSync(resolve(__dirname, '../../package.json'), 'utf-8'));
 const VERSION: string = MAIN_PACKAGE_JSON.version;
-const FLAGS = '--access public --provenance';
+// npm can only generate provenance from a CI provider it supports (GitHub Actions or GitLab CI,
+// both via OIDC). Requesting it from a local machine fails the whole publish with
+// "Automatic provenance generation not supported for provider: null", so only ask for it
+// where it can actually be produced.
+const SUPPORTS_PROVENANCE = Boolean(process.env.GITHUB_ACTIONS || process.env.GITLAB_CI);
+const FLAGS = `--access public${SUPPORTS_PROVENANCE ? ' --provenance' : ''}`;
 
 const PACKAGE_JSON_BASE: PackageJson = {
   description: 'Awesome Cordova Plugins - Native plugins for ionic apps',
@@ -53,7 +58,7 @@ const PACKAGE_JSON_BASE: PackageJson = {
   license: 'MIT',
   repository: {
     type: 'git',
-    url: 'https://github.com/danielsogl/awesome-cordova-plugins.git',
+    url: 'https://github.com/MaximBelov/awesome-cordova-plugins.git',
   },
 };
 
@@ -62,7 +67,7 @@ const DIST = resolve(ROOT, 'dist/@awesome-cordova-plugins');
 const PACKAGES: string[] = [];
 
 const MIN_CORE_VERSION = '^' + VERSION;
-const RXJS_VERSION = '^5.5.0 || ^6.5.0 || ^7.3.0';
+const RXJS_VERSION = '^5.5.0 || ^6.5.0 || ^7.4.0';
 
 const PLUGIN_PEER_DEPENDENCIES: Record<string, string> = {
   '@awesome-cordova-plugins/core': MIN_CORE_VERSION,
@@ -76,7 +81,7 @@ function getPackageJsonContent(
 ): PackageJson {
   const pkg: PackageJson = {
     ...structuredClone(PACKAGE_JSON_BASE),
-    name: '@awesome-cordova-plugins/' + name,
+    name: '@awesome-cordova-plugins-hotfix/' + name,
     dependencies,
     peerDependencies,
     version: VERSION,
@@ -101,10 +106,10 @@ function writeNGXPackageJson(data: PackageJson, dir: string) {
 }
 
 function prepare() {
-  writePackageJson(
-    getPackageJsonContent('core', { rxjs: RXJS_VERSION }, { '@types/cordova': 'latest' }),
-    resolve(DIST, 'core')
-  );
+  // writePackageJson(
+  //   getPackageJsonContent('core', { rxjs: RXJS_VERSION }, { '@types/cordova': 'latest' }),
+  //   resolve(DIST, 'core')
+  // );
 
   PLUGIN_PATHS.forEach((pluginPath: string) => {
     const pluginName = pluginPath.split(/[\/\\]+/).slice(-2)[0];
