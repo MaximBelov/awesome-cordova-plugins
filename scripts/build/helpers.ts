@@ -22,7 +22,39 @@ export const ROOT = resolve(__dirname, '../../');
 export const TS_CONFIG = readConfigFile(resolve(ROOT, 'tsconfig.json'), (path) => sys.readFile(path)).config;
 export const COMPILER_OPTIONS = TS_CONFIG.compilerOptions;
 export const PLUGINS_ROOT = join(ROOT, 'src/@awesome-cordova-plugins/plugins/');
-export const PLUGIN_PATHS = readdirSync(PLUGINS_ROOT).map((d: string) => join(PLUGINS_ROOT, d, 'index.ts'));
+
+/**
+ * Fork only. This branch builds and publishes the @awesome-cordova-plugins-hotfix scope, which
+ * carries a hand-picked subset of the wrappers, so the build is narrowed to that subset instead
+ * of all 266 plugins. The list is the whole scope — keep it in step with the npm org, otherwise a
+ * package silently stops getting new versions.
+ */
+export const HOTFIX_PLUGINS = [
+  'airship',
+  'bluetooth-classic-serial-port',
+  'firebasex-analytics',
+  'firebasex-auth',
+  'firebasex-config',
+  'firebasex-core',
+  'firebasex-crashlytics',
+  'firebasex-firestore',
+  'firebasex-functions',
+  'firebasex-messaging',
+  'firebasex-performance',
+  'screenshot',
+];
+
+const PLUGIN_DIRS = readdirSync(PLUGINS_ROOT);
+
+// A renamed or removed wrapper would otherwise drop out of the release without a word.
+const UNKNOWN_HOTFIX_PLUGINS = HOTFIX_PLUGINS.filter((name) => !PLUGIN_DIRS.includes(name));
+if (UNKNOWN_HOTFIX_PLUGINS.length > 0) {
+  throw new Error(`HOTFIX_PLUGINS lists wrappers that do not exist: ${UNKNOWN_HOTFIX_PLUGINS.join(', ')}`);
+}
+
+export const PLUGIN_PATHS = PLUGIN_DIRS.filter((d: string) => HOTFIX_PLUGINS.includes(d)).map((d: string) =>
+  join(PLUGINS_ROOT, d, 'index.ts')
+);
 
 export function getDecorator(node: Node, index = 0): Decorator | undefined {
   const decorators = canHaveDecorators(node) ? tsGetDecorators(node) : undefined;
