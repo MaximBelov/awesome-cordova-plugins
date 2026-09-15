@@ -33,10 +33,25 @@ interface PackageJson {
 
 const MAIN_PACKAGE_JSON = JSON.parse(readFileSync(resolve(__dirname, '../../package.json'), 'utf-8'));
 const VERSION: string = MAIN_PACKAGE_JSON.version;
-const FLAGS = '--access public --provenance';
 
-// Keep the published range in step with what the repo builds against instead of hardcoding it.
-const CORDOVA_TYPES_VERSION = `^${MAIN_PACKAGE_JSON.devDependencies['@types/cordova']}`;
+/**
+ * Fork only. Everything this branch builds goes to the hotfix scope, which republishes a subset of
+ * the wrappers (see HOTFIX_PLUGINS) from this fork. The wrappers themselves are untouched, so they
+ * keep peer-depending on the upstream @awesome-cordova-plugins/core of the same version.
+ */
+const SCOPE = '@awesome-cordova-plugins-hotfix';
+const FORK_REPOSITORY = 'https://github.com/MaximBelov/awesome-cordova-plugins';
+
+// npm can only generate provenance on a CI provider it supports (GitHub Actions or GitLab CI, both
+// via OIDC). Asking for it anywhere else fails the whole publish with "Automatic provenance
+// generation not supported for provider: null", so only request it where it can be produced.
+const SUPPORTS_PROVENANCE = Boolean(process.env.GITHUB_ACTIONS || process.env.GITLAB_CI);
+
+// NPM_PUBLISH_DRY_RUN=1 packs and reports every package without uploading anything, which is the
+// only way to review what a release would put on the registry before it is irreversible.
+const DRY_RUN = Boolean(process.env.NPM_PUBLISH_DRY_RUN);
+
+const FLAGS = `--access public${SUPPORTS_PROVENANCE ? ' --provenance' : ''}${DRY_RUN ? ' --dry-run' : ''}`;
 
 const PACKAGE_JSON_BASE: PackageJson = {
   description: 'Awesome Cordova Plugins - Native plugins for ionic apps',
@@ -61,12 +76,13 @@ const PACKAGE_JSON_BASE: PackageJson = {
   sideEffects: false,
   author: 'Daniel Sogl',
   license: 'MIT',
-  homepage: MAIN_PACKAGE_JSON.homepage,
-  bugs: { url: MAIN_PACKAGE_JSON.bugs.url },
+  // upstream cannot support packages it does not publish, so point readers at the fork instead
+  homepage: `${FORK_REPOSITORY}#readme`,
+  bugs: { url: `${FORK_REPOSITORY}/issues` },
   keywords: ['cordova', 'ionic', 'angular', 'native', 'mobile', 'plugin'],
   repository: {
     type: 'git',
-    url: 'git+https://github.com/danielsogl/awesome-cordova-plugins.git',
+    url: `git+${FORK_REPOSITORY}.git`,
   },
 };
 
@@ -91,7 +107,7 @@ function getPackageJsonContent(
   const isCore = name === 'core';
   const pkg: PackageJson = {
     ...structuredClone(PACKAGE_JSON_BASE),
-    name: '@awesome-cordova-plugins/' + name,
+    name: `${SCOPE}/${name}`,
     dependencies,
     peerDependencies,
     version: VERSION,
@@ -167,14 +183,10 @@ function copyDocs(dir: string, docsName: string): string | undefined {
 }
 
 function prepare() {
-  // copyDocs runs first because the generated README carries the per-package description
-  const coreDir = resolve(DIST, 'core');
-  const coreDescription = copyDocs(coreDir, 'core');
-  writePackageJson(
-    getPackageJsonContent('core', { rxjs: RXJS_VERSION }, { '@types/cordova': CORDOVA_TYPES_VERSION }, coreDescription),
-    coreDir
-  );
+  // The hotfix scope has no core of its own — the wrappers peer-depend on the upstream
+  // @awesome-cordova-plugins/core, which is published for every version this fork builds from.
 
+  // copyDocs runs first because the generated README carries the per-package description
   PLUGIN_PATHS.forEach((pluginPath: string) => {
     const pluginName = pluginPath.split(/[/\\]+/).slice(-2)[0];
     const dir = resolve(DIST, 'plugins', pluginName);
